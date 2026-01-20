@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
@@ -12,11 +14,15 @@ import nltk
 import re
 import json
 import pythoncom 
+
+load_dotenv()
+
 app = Flask(__name__)
 CORS(app)
 
 try:
-    client = MongoClient("mongodb+srv://binitlenka:gxQ0UbxvgpfayVLo@blogin.lg79k.mongodb.net/?retryWrites=true&w=majority&appName=Blogin")
+    mongo_uri = os.getenv("MONGO_URI")
+    client = MongoClient(mongo_uri)
     db = client["ai_twin"]
     professionalism_collection = db["professionalism"]
     analysis_collection = db["text_analysis"]
@@ -28,7 +34,8 @@ except Exception as e:
 vectorizer = joblib.load("ml_model/model/vectorizer.pkl")
 model = joblib.load("ml_model/model/model.pkl")
 nlp = spacy.load('en_core_web_md')
-client2 = genai.Client(api_key="AIzaSyA-7uhf0jyKdHUktvZ-IBYlQaKv-RTgHz0")
+api_key = os.getenv("GENAI_API_KEY")
+client2 = genai.Client(api_key=api_key)
 
 @app.route("/")
 def home():
